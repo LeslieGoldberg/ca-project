@@ -7,23 +7,21 @@ from google.auth.transport.requests import Request
 import pprint
 
 # If modifying these scopes, delete the file token.pickle.
-SCOPES = ['https://www.googleapis.com/auth/spreadsheets.readonly']
+SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
 
 
 def get_username_sheet(service):
     """
     Creating a ValueRange object from Login Cards Master spreadsheet.
     """
-    range_names = [
-        'Sheet2!A3:I'
-    ]
+    range_name = ['Sheet2!A3:I']
     spreadsheet_id = '1Mdj3bOHrA9qq2D-N7Oj8tglEc8m90pYtfAA-V8fjd8o'
     result = service.spreadsheets().values().batchGet(
-        spreadsheetId=spreadsheet_id, ranges=range_names, majorDimension='COLUMNS').execute()
+        spreadsheetId=spreadsheet_id, ranges=range_name, majorDimension='COLUMNS').execute()
     ranges = result.get('valueRanges', [])
-    pp = pprint.PrettyPrinter(indent=1)
+    # pp = pprint.PrettyPrinter(indent=1)
     print('Usernames retrieved.'.format(len(ranges)))
-    # pp.pprint(ranges)
+    # pp.pprint(ranges[0])
     return ranges
 
 
@@ -32,36 +30,102 @@ def get_grade_levels_and_names(service):
     Reads the grade level column from Welcome spreadsheet
     :return:
     """
-    range_name = ['Sheet5!F3:G25']
+    range_name = ['Form Responses 2!B2:C']
     spreadsheet_id = '1GD5UBfEcWwxopL3pS7t4MIjFWFzk_NsPXT24T1JxVa8'
-    result = service.spreadsheets().values().get(
-        spreadsheetId=spreadsheet_id, range=range_name, majorDimension='COLUMNS').execute()
+    result = service.spreadsheets().values().batchGet(
+        spreadsheetId=spreadsheet_id, ranges=range_name, majorDimension='COLUMNS').execute()
     ranges = result.get('valueRanges', [])
-    pp = pprint.PrettyPrinter(indent=1)
-    print('{0} ranges retrieved.'.format(len(ranges)))
-    pp.pprint(ranges)
+    # pp = pprint.PrettyPrinter(indent=1)
+    print('Grades and Names retrieved.'.format(len(ranges)))
+    # pp.pprint(ranges[0]['values'][0])
     return ranges
 
 
-def write_passwords_in_column():
+def kinder_yield(username_valuerange):
+    for username in username_valuerange[0]['values'][0]:
+        yield username
+
+
+def first_yield(username_valuerange):
+    for username in username_valuerange[0]['values'][1]:
+        yield username
+
+
+def second_yield(username_valuerange):
+    for username in username_valuerange[0]['values'][2]:
+        yield username
+
+
+def third_yield(username_valuerange):
+    for username in username_valuerange[0]['values'][3]:
+        yield username
+
+
+def fourth_yield(username_valuerange):
+    for username in username_valuerange[0]['values'][4]:
+        yield username
+
+
+def fifth_yield(username_valuerange):
+    for username in username_valuerange[0]['values'][5]:
+        yield username
+
+
+def sixth_yield(username_valuerange):
+    for username in username_valuerange[0]['values'][6]:
+        yield username
+
+
+def seventh_yield(username_valuerange):
+    for username in username_valuerange[0]['values'][7]:
+        yield username
+
+
+def eighth_yield(username_valuerange):
+    for username in username_valuerange[0]['values'][8]:
+        yield username
+
+
+def match_grades_with_passwords(grade_levels, username_valuerange):
+    username_list = []
+    for grade in grade_levels:
+        if grade == 'Kindergarten':
+            username_list.append(next(kinder_yield(username_valuerange)))
+        elif grade == 'Grade 1':
+            username_list.append(next(first_yield(username_valuerange)))
+        elif grade == 'Grade 2':
+            username_list.append(next(second_yield(username_valuerange)))
+        elif grade == 'Grade 3':
+            username_list.append(next(third_yield(username_valuerange)))
+        elif grade == 'Grade 4':
+            username_list.append(next(fourth_yield(username_valuerange)))
+        elif grade == 'Grade 5':
+            username_list.append(next(fifth_yield(username_valuerange)))
+        elif grade == 'Grade 6':
+            username_list.append(next(sixth_yield(username_valuerange)))
+        elif grade == 'Grade 7':
+            username_list.append(next(seventh_yield(username_valuerange)))
+        elif grade == 'Grade 8':
+            username_list.append(next(eighth_yield(username_valuerange)))
+    return username_list
+
+
+def write_names_and_usernames(service, names_list, username_list):
     """
     (Batch) Writes passwords list into a column in the Welcome spreadsheet
     :return:
     """
-    values = [
-        [
-            # Cell values ...
-        ]
-    ]
+    values = [names_list, username_list]
+    range_name = 'NamesAndUserNames!A2:B'
     body = {
-        'range': 'Sheet1!B:B',
         'majorDimension': 'COLUMNS',
+        'range': range_name,
         'values': values
     }
     spreadsheet_id = '1GD5UBfEcWwxopL3pS7t4MIjFWFzk_NsPXT24T1JxVa8'
     result = service.spreadsheets().values().update(
         spreadsheetId=spreadsheet_id, range=range_name,
-        valueInputOption=value_input_option, insertDataOption=INSERT_COLUMNS, body=body).execute()
+        valueInputOption='USER_ENTERED', body=body).execute()
     print('{0} cells updated.'.format(result.get('updatedCells')))
 
 
@@ -83,10 +147,7 @@ def append_username_to_column():
                                        .get('updatedCells')))
 
 
-def main():
-    """Shows basic usage of the Sheets API.
-    Prints values from a sample spreadsheet.
-    """
+def get_service():
     creds = None
     # The file token.pickle stores the user's access and refresh tokens, and is
     # created automatically when the authorization flow completes for the first
@@ -100,31 +161,24 @@ def main():
             creds.refresh(Request())
         else:
             flow = InstalledAppFlow.from_client_secrets_file(
-                'client_secret_169976153081-e88rpdtbuu3vdjckli3jlmit5ovst8ap.apps.googleusercontent.com.json', SCOPES)
+                'client_id.json', SCOPES)
             creds = flow.run_local_server(port=0)
         # Save the credentials for the next run
         with open('token.pickle', 'wb') as token:
             pickle.dump(creds, token)
 
     service = build('sheets', 'v4', credentials=creds)
+    return service
 
+
+def main():
+    service = get_service()
     username_values = get_username_sheet(service)
     grade_levels_and_names = get_grade_levels_and_names(service)
-
-    # # Call the Sheets API
-    # sheet = service.spreadsheets()
-    # result = sheet.values().get(spreadsheetId=SAMPLE_SPREADSHEET_ID,
-    #                             range=SAMPLE_RANGE_NAME).execute()
-    # values = result.get('values', [])
-    #
-    # if not values:
-    #     print('No data found.')
-    # else:
-    #     print('Name, Major:')
-    #     for row in values:
-    #         # Print columns A and E, which correspond to indices 0 and 4.
-    #         print('%s, %s' % (row[0], row[4]))
-
+    grade_levels = grade_levels_and_names[0]['values'][0]
+    names = grade_levels_and_names[0]['values'][1]
+    username_list = match_grades_with_passwords(grade_levels, username_values)
+    write_names_and_usernames(service, names, username_list)
 
 if __name__ == '__main__':
     main()
