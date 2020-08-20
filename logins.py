@@ -4,7 +4,7 @@ import os.path
 from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
-import pprint
+from datetime import datetime, time
 
 # If modifying these scopes, delete the file token.pickle.
 SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
@@ -55,7 +55,7 @@ class UsernameGenerator:
             spreadsheetId=spreadsheet_id, ranges=range_name, majorDimension='COLUMNS').execute()
         ranges = result.get('valueRanges', [])
         print('Usernames retrieved.')
-        return ranges
+        return ranges[0]['values']
 
     def get_grade_levels_and_names(self, service):
         """
@@ -70,40 +70,8 @@ class UsernameGenerator:
         print('{0} Grades and Names retrieved.'.format(len(ranges)))
         return ranges
 
-    def kinder_yield(self, username_valuerange):
-        for username in username_valuerange[0]['values'][0]:
-            yield username
-
-    def first_yield(self, username_valuerange):
-        for username in username_valuerange[0]['values'][1]:
-            yield username
-
-    def second_yield(self, username_valuerange):
-        for username in username_valuerange[0]['values'][2]:
-            yield username
-
-    def third_yield(self, username_valuerange):
-        for username in username_valuerange[0]['values'][3]:
-            yield username
-
-    def fourth_yield(self, username_valuerange):
-        for username in username_valuerange[0]['values'][4]:
-            yield username
-
-    def fifth_yield(self, username_valuerange):
-        for username in username_valuerange[0]['values'][5]:
-            yield username
-
-    def sixth_yield(self, username_valuerange):
-        for username in username_valuerange[0]['values'][6]:
-            yield username
-
-    def seventh_yield(self, username_valuerange):
-        for username in username_valuerange[0]['values'][7]:
-            yield username
-
-    def eighth_yield(self, username_valuerange):
-        for username in username_valuerange[0]['values'][8]:
+    def username_yield(self, username_valuerange):
+        for username in username_valuerange:
             yield username
 
     def match_grades_with_passwords(self, grade_levels, username_valuerange):
@@ -114,25 +82,34 @@ class UsernameGenerator:
         :return: list of grade-matched usernames
         """
         username_list = []
+        kinder_names = (self.username_yield(username_valuerange[0]))
+        first_names = (self.username_yield(username_valuerange[1]))
+        second_names = (self.username_yield(username_valuerange[2]))
+        third_names = (self.username_yield(username_valuerange[3]))
+        fourth_names = (self.username_yield(username_valuerange[4]))
+        fifth_names = (self.username_yield(username_valuerange[5]))
+        sixth_names = (self.username_yield(username_valuerange[6]))
+        seventh_names = (self.username_yield(username_valuerange[7]))
+        eighth_names = (self.username_yield(username_valuerange[8]))
         for grade in grade_levels:
             if grade == 'Kindergarten':
-                username_list.append(next(self.kinder_yield(username_valuerange)))
+                username_list.append(next(kinder_names))
             elif grade == 'Grade 1':
-                username_list.append(next(self.first_yield(username_valuerange)))
+                username_list.append(next(first_names))
             elif grade == 'Grade 2':
-                username_list.append(next(self.second_yield(username_valuerange)))
+                username_list.append(next(second_names))
             elif grade == 'Grade 3':
-                username_list.append(next(self.third_yield(username_valuerange)))
+                username_list.append(next(third_names))
             elif grade == 'Grade 4':
-                username_list.append(next(self.fourth_yield(username_valuerange)))
+                username_list.append(next(fourth_names))
             elif grade == 'Grade 5':
-                username_list.append(next(self.fifth_yield(username_valuerange)))
+                username_list.append(next(fifth_names))
             elif grade == 'Grade 6':
-                username_list.append(next(self.sixth_yield(username_valuerange)))
+                username_list.append(next(sixth_names))
             elif grade == 'Grade 7':
-                username_list.append(next(self.seventh_yield(username_valuerange)))
+                username_list.append(next(seventh_names))
             elif grade == 'Grade 8':
-                username_list.append(next(self.eighth_yield(username_valuerange)))
+                username_list.append(next(eighth_names))
             else:
                 username_list.append('')
         return username_list
@@ -154,6 +131,16 @@ class UsernameGenerator:
             spreadsheetId=spreadsheet_id, range=range_name,
             valueInputOption='USER_ENTERED', body=body).execute()
         print('{0} cells updated.'.format(result.get('updatedCells')))
+
+    def delete_values(self, service):
+        spreadsheet_id = '1GD5UBfEcWwxopL3pS7t4MIjFWFzk_NsPXT24T1JxVa8'
+        # The A1 notation of the values to clear.
+        range_ = 'NamesAndUserNames!A2:B'
+        clear_values_request_body = {}
+        request = service.spreadsheets().values().clear(spreadsheetId=spreadsheet_id, range=range_,
+                                                        body=clear_values_request_body)
+        response = request.execute()
+        print('{0} range cleared.'.format(response.get('clearedRange')))
 
     # def append_username_to_column():
     #     values = [
@@ -184,10 +171,18 @@ class UsernameGenerator:
         service = self.get_service()
         username_values = self.get_username_sheet(service)
         grade_levels_and_names = self.get_grade_levels_and_names(service)
-        grade_levels = grade_levels_and_names[0]['values'][0]
-        names = grade_levels_and_names[0]['values'][1]
+        try:
+            grade_levels = grade_levels_and_names[0]['values'][0]
+        except KeyError:
+            grade_levels = []
+        try:
+            names = grade_levels_and_names[0]['values'][1]
+        except KeyError:
+            names = []
         username_list = self.match_grades_with_passwords(grade_levels, username_values)
         self.write_names_and_usernames(service, names, username_list)
+        if datetime.now().time() == time(hour=0, minute=0,second=0):
+            self.delete_values(service)
 
 
 if __name__ == '__main__':
