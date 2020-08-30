@@ -11,6 +11,19 @@ function createSpreadsheetOpenTrigger() {
 }
 
 /**
+ * Creates a trigger to delete values at midnight.
+ *
+ * @customfunction
+ */
+function createTimeDrivenTriggers() {
+  // Trigger at 00:00.
+  ScriptApp.newTrigger('deleteList')
+      .timeBased().everyDays(1)
+      .atHour(0)
+      .create();
+}
+
+/**
  * Creates an array of names and grade-specific usernames 
  * and writes them into a spreadsheet
  *
@@ -88,15 +101,43 @@ function usernameGenerator() {
     else {usernameList.push("")}
   }
   
-  
   // Create value array to write into Welcome sheet.
-  var namesAndUsernamesSheet = welcomeSpreadsheet.getSheetByName('NamesAndUserNames').getRange('A2:B');
+  var namesAndUsernamesSheet = welcomeSpreadsheet.getSheetByName('NamesAndUserNames').getRange('A1:B');
   var returnValues = namesAndUsernamesSheet.getValues();
-  for (row = 0; row < teacherNamesValues.length; row++) {
-    returnValues[row][0] = teacherNamesValues[row][0];}
-  for (i = 0; i < usernameList.length; i++) {
-    returnValues[i][1] = usernameList[i];}
+  for (row = 1; row < teacherNamesValues.length; row++) {
+    returnValues[row][0] = teacherNamesValues[row - 1][0];}
+  for (i = 1; i < usernameList.length; i++) {
+    returnValues[i][1] = usernameList[i - 1];}
+  
+  // Set header values of Welcome sheet.
+  returnValues[0][0] = ' Teacher Name ';
+  returnValues[0][1] = ' UserName ';
   
   // Write returnValues into Welcome Sheet.
-  namesAndUsernamesSheet.setValues(returnValues)
+  namesAndUsernamesSheet.setValues(returnValues);
+  
+  // Format Welcome Sheet: Resize columns, freeze first row, bold first row and add a border, apply Row Bandings to returnValues.
+  var welcomeSheet = welcomeSpreadsheet.getSheetByName('NamesAndUserNames');
+  welcomeSheet.autoResizeColumns(1, 2);
+  welcomeSheet.setFrozenRows(1);
+  var setData = welcomeSheet.getDataRange();
+  setData.setBorder(false, true, true, true, true, true, null, SpreadsheetApp.BorderStyle.SOLID).applyRowBanding(SpreadsheetApp.BandingTheme.LIGHT_GREEN, true, false)
+  var firstRow = welcomeSheet.getRange('A1:B1');
+  firstRow.setFontWeight('bold').setBorder(true, true, true, true, null, null, null, SpreadsheetApp.BorderStyle.SOLID_MEDIUM); 
 }
+
+
+/**
+ * Deletes values from Welcome Sheet when triggered at midnight.
+ *
+ * @customfunction
+ */
+function deleteList() {
+  var welcomeSpreadsheet = SpreadsheetApp.openById(
+    '1GD5UBfEcWwxopL3pS7t4MIjFWFzk_NsPXT24T1JxVa8');
+  // Clears all values and formatting from the sheet.
+  var namesAndUsernamesSheet = welcomeSpreadsheet.getSheetByName('NamesAndUserNames');
+  namesAndUsernamesSheet.clear();
+  namesAndUsernamesSheet.getDataRange().applyRowBanding().remove();
+}
+  
