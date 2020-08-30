@@ -116,7 +116,7 @@ function usernameGenerator() {
   // Write returnValues into Welcome Sheet.
   namesAndUsernamesSheet.setValues(returnValues);
   
-  // Format Welcome Sheet: Resize columns, freeze first row, bold first row and add a border, apply Row Bandings to returnValues.
+  // Format Welcome Sheet: Resize columns, freeze first row, apply Row Bandings to returnValues and add a border, bold first row and add a border.
   var welcomeSheet = welcomeSpreadsheet.getSheetByName('NamesAndUserNames');
   welcomeSheet.autoResizeColumns(1, 2);
   welcomeSheet.setFrozenRows(1);
