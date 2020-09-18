@@ -32,27 +32,26 @@ function createTimeDrivenTriggers() {
 }
 
 //usernameGenerator.gs holds the following code:
-
-var welcomeSpreadsheetId = '1GD5UBfEcWwxopL3pS7t4MIjFWFzk_NsPXT24T1JxVa8';
-var loginCardsSpreadsheetId = '1Mdj3bOHrA9qq2D-N7Oj8tglEc8m90pYtfAA-V8fjd8o';
-var usernameSheetName = 'Sheet2';
-var welcomeSheetName = 'Form Responses 2';
-var namesAndUsernamesSheetName = 'NamesAndUserNames';
-var usernameIndexSheetName = 'Username Indexes'
-var gradeLabels = ['Kindergarten', 'Grade 1', 'Grade 2', 'Grade 3', 'Grade 4', 'Grade 5', 'Grade 6', 'Grade 7', 'Grade 8'];
-
-// Gets Username values from Login Cards master spreadsheet.
-var usernameSpreadsheet = SpreadsheetApp.openById(loginCardsSpreadsheetId);
-var usernameSheet = usernameSpreadsheet.getSheetByName(usernameSheetName);
-
 /**
  * Creates an array of names and grade-specific usernames 
  * and writes them into a spreadsheet
  *
  * @customfunction
  */
-function usernameGenerator() {   
- // Gets grade levels and names from Welcome spreadsheet.
+function usernameGenerator() {
+  // Sets variables to be used throughout the rest of the script. **Also used in resetUsernames.gs and deleteList.gs
+  var welcomeSpreadsheetId = '1GD5UBfEcWwxopL3pS7t4MIjFWFzk_NsPXT24T1JxVa8';
+  var loginCardsSpreadsheetId = '1Mdj3bOHrA9qq2D-N7Oj8tglEc8m90pYtfAA-V8fjd8o';
+  var usernameSheetName = 'Sheet2';
+  var welcomeSheetName = 'Form Responses 2';
+  var namesAndUsernamesSheetName = 'NamesAndUserNames';
+  var gradeLabels = ['Kindergarten', 'Grade 1', 'Grade 2', 'Grade 3', 'Grade 4', 'Grade 5', 'Grade 6', 'Grade 7', 'Grade 8'];
+
+  // Get Login Master Card sheet.
+  var usernameSpreadsheet = SpreadsheetApp.openById(loginCardsSpreadsheetId);
+  var usernameSheet = usernameSpreadsheet.getSheetByName(usernameSheetName);
+  
+  // Gets grade levels and names from Welcome spreadsheet.
   var welcomeSpreadsheet = SpreadsheetApp.openById(welcomeSpreadsheetId);
   var welcomeSheet = welcomeSpreadsheet.getSheetByName(welcomeSheetName);
   var gradeLevelsRange = welcomeSheet.getRange('B2:B');
@@ -60,9 +59,13 @@ function usernameGenerator() {
   var teacherNamesRange = welcomeSheet.getRange('C2:C');
   var teacherNamesValues = teacherNamesRange.getValues();
   
+  // Set index sheet variables.
+  var usernameIndexSheetName = 'Username Index Sheet';
+  var usernameIndexSheet = welcomeSpreadsheet.getSheetByName(usernameIndexSheetName);
+  
   // Create usernameList of grade-level-matched usernames.
-  var usernameList = []
-  var usernameIndexes = returnUsernameIndexes_(welcomeSpreadsheet)
+  var usernameList = [];
+  var usernameIndexes = returnUsernameIndexes_(usernameIndexSheet);
   
   var kinderI = usernameIndexes[0];
   var firstI = usernameIndexes[1];
@@ -79,47 +82,47 @@ function usernameGenerator() {
     
     // Adds the next grade-matched username to usernameList.
     if (gradeLevelsValues[row] == gradeLabels[0]) {
-      var kinderUsernames = getUsernamesByRange('A1:A');
+      var kinderUsernames = getUsernamesByRange_('A1:A', usernameSheet);
       usernameList.push(kinderUsernames[kinderI][0]);
       kinderI++;
     }
     else if (gradeLevelsValues[row] == gradeLabels[1]) {
-      var firstUsernames = getUsernamesByRange('B1:B');
+      var firstUsernames = getUsernamesByRange_('B1:B', usernameSheet);
       usernameList.push(firstUsernames[firstI][0]);
       firstI++;
     }
     else if (gradeLevelsValues[row] == gradeLabels[2]) {
-      var secondUsernames = getUsernamesByRange('C1:C');
+      var secondUsernames = getUsernamesByRange_('C1:C', usernameSheet);
       usernameList.push(secondUsernames[secondI][0]);
       secondI++;
     }
     else if (gradeLevelsValues[row] == gradeLabels[3]) {
-      var thirdUsernames = getUsernamesByRange('D1:D');
+      var thirdUsernames = getUsernamesByRange_('D1:D', usernameSheet);
       usernameList.push(thirdUsernames[thirdI][0]);
       thirdI++;
     }
     else if (gradeLevelsValues[row] == gradeLabels[4]) {
-      var fourthUsernames = getUsernamesByRange('E1:E');
+      var fourthUsernames = getUsernamesByRange_('E1:E', usernameSheet);
       usernameList.push(fourthUsernames[fourthI][0]);
       fourthI++;
     }
     else if (gradeLevelsValues[row] == gradeLabels[5]) {
-      var fifthUsernames = getUsernamesByRange('F1:F');
+      var fifthUsernames = getUsernamesByRange_('F1:F', usernameSheet);
       usernameList.push(fifthUsernames[fifthI][0]);
       fifthI++;
     }
     else if (gradeLevelsValues[row] == gradeLabels[6]) {
-      var sixthUsernames = getUsernamesByRange('G1:G');
+      var sixthUsernames = getUsernamesByRange_('G1:G', usernameSheet);
       usernameList.push(sixthUsernames[sixthI][0]);
       sixthI++;
     }
     else if (gradeLevelsValues[row] == gradeLabels[7]) {
-      var seventhUsernames = getUsernamesByRange('H1:H');
+      var seventhUsernames = getUsernamesByRange_('H1:H', usernameSheet);
       usernameList.push(seventhUsernames[seventhI][0]);
       seventhI++;
     }
     else if (gradeLevelsValues[row] == gradeLabels[8]) {
-      var eighthUsernames = getUsernamesByRange('I1:I');
+      var eighthUsernames = getUsernamesByRange_('I1:I', usernameSheet);
       usernameList.push(eighthUsernames[eighthI][0]);
       eighthI++;
     }
@@ -128,32 +131,35 @@ function usernameGenerator() {
          } 
   }
   // Writes updated grade-level indexes to hidden spreadsheet.
-  storeUsernameIndexes_(welcomeSpreadsheet, [kinderI, firstI, secondI, thirdI, fourthI, fifthI, sixthI, seventhI, eighthI])
+  storeUsernameIndexes_(welcomeSpreadsheet, [kinderI, firstI, secondI, thirdI, fourthI, fifthI, sixthI, seventhI, eighthI]);
+  
   
   // Create value array to write into Welcome sheet.
-  var namesAndUsernamesSheet = welcomeSpreadsheet.getSheetByName(namesAndUsernamesSheetName).getRange('A1:B');
-  var returnValues = namesAndUsernamesSheet.getValues();
+  var namesAndUsernamesSheet = welcomeSpreadsheet.getSheetByName(namesAndUsernamesSheetName);
+  var returnRange = namesAndUsernamesSheet.getRange('A1:B');
+  var returnValues = returnRange.getValues();
+  
+  // Sets Teacher Names in the first column.
   for (row = 1; row < teacherNamesValues.length; row++) {
     returnValues[row][0] = teacherNamesValues[row - 1][0];
   }
+  // Sets Usernames in second column.
   for (i = 1; i < usernameList.length; i++) {
     returnValues[i][1] = usernameList[i - 1];
   }
-  
-  // Set header values of Welcome sheet. Extra white-space is intentional for formatting purposes.
+  // Sets header values of Welcome sheet. Extra white-space is intentional for formatting purposes.
   returnValues[0][0] = ' Teacher Name ';
   returnValues[0][1] = ' UserName ';
   
   // Write returnValues into Welcome Sheet.
-  namesAndUsernamesSheet.setValues(returnValues);
+  returnRange.setValues(returnValues);
   
   // Format Welcome Sheet: Resize columns, freeze first row, apply Row Bandings to returnValues and add a border, bold first row and add a border.  
-  var toWriteSheet = welcomeSpreadsheet.getSheetByName(namesAndUsernamesSheetName);
-  toWriteSheet.autoResizeColumns(1, 2);
-  toWriteSheet.setFrozenRows(1);
-  var updatedValues = toWriteSheet.getDataRange();
+  namesAndUsernamesSheet.autoResizeColumns(1, 2);
+  namesAndUsernamesSheet.setFrozenRows(1);
+  var updatedValues = namesAndUsernamesSheet.getDataRange();
   updatedValues.setBorder(false, true, true, true, true, true, null, SpreadsheetApp.BorderStyle.SOLID).applyRowBanding(SpreadsheetApp.BandingTheme.LIGHT_GREEN, true, false)
-  var firstRow = toWriteSheet.getRange('A1:B1');
+  var firstRow = namesAndUsernamesSheet.getRange('A1:B1');
   firstRow.setFontWeight('bold').setBorder(true, true, true, true, null, null, null, SpreadsheetApp.BorderStyle.SOLID_MEDIUM); 
 }
 
@@ -162,32 +168,11 @@ function usernameGenerator() {
  *
  * @customfunction
  */
-function getUsernamesByRange(myRangeStr) {
-  return usernameSheet.getRange(myRangeStr).getValues();
-}
-
-/**
- * Creates a hidden spreadsheet within the Welcome spreadsheet if one does not already exist.
- * Stores index values for grade-level usernames.
- *
- * @customfunction
- */
-function storeUsernameIndexes_(spreadsheet, indexArray) {
-  // Get usernameIndex sheet.
-  var usernameIndexSheet = spreadsheet.getSheetByName(usernameIndexSheetName);
+function getUsernamesByRange_(myRangeStr, usernameSheet) {
+  var usernameRange = usernameSheet.getRange(myRangeStr);
+  var usernameValues = usernameRange.getValues();
   
-  // If sheet does not exist, create the sheet and hide it)
-  if (usernameIndexSheet == null) {
-    var spreadsheetNums = spreadsheet.getNumSheets();
-    spreadsheet.insertSheet('Username Indexes', spreadsheetNums + 1);
-    usernameIndexSheet.hideSheet();
-  }
-  
-  // Creates a single-row value array to write to the sheet.
-  var indexValues = [indexArray];
-  
-  // Writes values to hidden sheet.
-  usernameIndexSheet.setValues(indexValues);
+  return usernameValues;
 }
 
 /**
@@ -197,20 +182,19 @@ function storeUsernameIndexes_(spreadsheet, indexArray) {
  *
  * @customfunction
  */
-function returnUsernameIndexes_(spreadsheet) {
-  // Gets hidden usernameIndexSheet
-  var usernameIndexSheet = spreadsheet.getSheetByName(usernameIndexSheetName);
-  
-  // If the sheet exists, it gets the single row of values and creates an array from them]
-  if (usernameIndexSheet != null) {
-      var usernameValues = usernameIndexSheet.getDataRange().getValues();
-      var indexValues = [];
-      for (i = 0; i < usernameValues.length; i++) {
-        indexValues.push(usernameValues[0][i]);
+function returnUsernameIndexes_(usernameIndexSheet) {  
+  // If the hidden username index sheet does not exist, sets indexValues to an array of default values (2).
+  if (usernameIndexSheet == null) {
+      var indexValues = [2, 2, 2, 2, 2, 2, 2, 2, 2];
       }
-  // If the sheet does not exist, sets indexValues to an array of default values (2).
-  } else {
-    var indexValues = [2, 2, 2, 2, 2, 2, 2, 2, 2];
+  // If the sheet exists, it gets the single row of values and creates an array from them.
+  else {
+    var usernameRange = usernameIndexSheet.getDataRange();
+    var usernameValues = usernameRange.getValues();
+    var indexValues = [];
+    for (i = 0; i < usernameValues.length; i++) {
+      indexValues.push(usernameValues[0][i]);
+    }
   }
   
   // Returns an array of indexValues.
@@ -218,18 +202,50 @@ function returnUsernameIndexes_(spreadsheet) {
 }
 
 /**
+ * Creates a hidden spreadsheet within the Welcome spreadsheet if one does not already exist.
+ * Stores index values for grade-level usernames.
+ *
+ * @customfunction
+ */
+function storeUsernameIndexes_(welcomeSpreadsheet, indexArray) {  
+  var usernameIndexSheetName = 'Username Index Sheet';
+  var usernameIndexSheet = welcomeSpreadsheet.getSheetByName(usernameIndexSheetName);
+  
+  if (usernameIndexSheet == null) {
+    // If sheet does not exist, create the sheet and hide it.
+    var spreadsheetNums = welcomeSpreadsheet.getNumSheets();
+    usernameIndexSheet = welcomeSpreadsheet.insertSheet('Username Indexes', spreadsheetNums + 1);
+    usernameIndexSheet.hideSheet();
+  }
+  // Creates a single-row value array to write to the sheet.
+  var indexValues = [indexArray];
+  
+  // Writes values to hidden sheet.
+  var usernameRange = usernameIndexSheet.getRange(1, 1, 1, 9);
+  usernameRange.setValues(indexValues);
+}
+
+
+// resetUsernames.gs holds the following code.
+/**
  * Deletes hidden spreadsheet to reset username index values.
  * Triggered at midnight.
  *
  * @customfunction
  */
 function resetUsernames() {
+  var welcomeSpreadsheetId = '1GD5UBfEcWwxopL3pS7t4MIjFWFzk_NsPXT24T1JxVa8';
+  var usernameIndexSheetName = 'Username Indexes'
+ 
   var ss = SpreadsheetApp.openById(welcomeSpreadsheetId);
   var usernameIndexSheet = ss.getSheetByName(usernameIndexSheetName);
-  ss.deleteSheet(usernameIndexSheet);
+  if (usernameIndexSheet) {
+    ss.deleteSheet(usernameIndexSheet);
+  }
 }
 
 
+// deleteList.gs holds the following code.
 /**
  * Deletes values from Welcome Sheet.
  * Triggered after 1 hr.
@@ -237,6 +253,9 @@ function resetUsernames() {
  * @customfunction
  */
 function deleteList() {
+  var welcomeSpreadsheetId = '1GD5UBfEcWwxopL3pS7t4MIjFWFzk_NsPXT24T1JxVa8';
+  var namesAndUsernamesSheetName = 'NamesAndUserNames';
+  
   var welcomeSpreadsheet = SpreadsheetApp.openById(welcomeSpreadsheetId);
   // Clears all values and formatting from the sheet.
   var namesAndUsernamesSheet = welcomeSpreadsheet.getSheetByName(namesAndUsernamesSheetName);
@@ -245,3 +264,4 @@ function deleteList() {
     banding.remove();
   });
 }
+
