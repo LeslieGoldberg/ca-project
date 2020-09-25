@@ -40,32 +40,32 @@ function createTimeDrivenTriggers() {
  */
 function usernameGenerator() {
   // Sets variables to be used throughout the rest of the script. **Also used in resetUsernames.gs and deleteList.gs
-  var welcomeSpreadsheetId = '1GD5UBfEcWwxopL3pS7t4MIjFWFzk_NsPXT24T1JxVa8';
-  var loginCardsSpreadsheetId = '1Mdj3bOHrA9qq2D-N7Oj8tglEc8m90pYtfAA-V8fjd8o';
-  var usernameSheetName = 'Sheet2';
-  var welcomeSheetName = 'Form Responses 2';
-  var namesAndUsernamesSheetName = 'NamesAndUserNames';
-  var gradeLabels = ['Kindergarten', 'Grade 1', 'Grade 2', 'Grade 3', 'Grade 4', 'Grade 5', 'Grade 6', 'Grade 7', 'Grade 8'];
+  var WELCOME_SPREADSHEET_ID = '1GD5UBfEcWwxopL3pS7t4MIjFWFzk_NsPXT24T1JxVa8';
+  var LOGIN_CARDS_SPREADSHEET_ID = '1Mdj3bOHrA9qq2D-N7Oj8tglEc8m90pYtfAA-V8fjd8o';
+  var USERNAME_SHEET_NAME = 'Sheet2';
+  var WELCOME_SHEET_NAME = 'Form Responses 2';
+  var NAMES_AND_USERNAMES_SHEET_NAME = 'NamesAndUserNames';
+  var GRADE_LABELS = ['Kindergarten', 'Grade 1', 'Grade 2', 'Grade 3', 'Grade 4', 'Grade 5', 'Grade 6', 'Grade 7', 'Grade 8'];
 
   // Get Login Master Card sheet.
-  var usernameSpreadsheet = SpreadsheetApp.openById(loginCardsSpreadsheetId);
-  var usernameSheet = usernameSpreadsheet.getSheetByName(usernameSheetName);
+  var USERNAME_SPREADSHEET = SpreadsheetApp.openById(LOGIN_CARDS_SPREADSHEET_ID);
+  var USERNAME_SHEET = USERNAME_SPREADSHEET.getSheetByName(USERNAME_SHEET_NAME);
   
   // Gets grade levels and names from Welcome spreadsheet.
-  var welcomeSpreadsheet = SpreadsheetApp.openById(welcomeSpreadsheetId);
-  var welcomeSheet = welcomeSpreadsheet.getSheetByName(welcomeSheetName);
-  var gradeLevelsRange = welcomeSheet.getRange('B2:B');
-  var gradeLevelsValues = gradeLevelsRange.getValues();
-  var teacherNamesRange = welcomeSheet.getRange('C2:C');
-  var teacherNamesValues = teacherNamesRange.getValues();
+  var WELCOME_SPREADSHEET = SpreadsheetApp.openById(WELCOME_SPREADSHEET_ID);
+  var WELCOME_SHEET = WELCOME_SPREADSHEET.getSheetByName(WELCOME_SHEET_NAME);
+  var GRADE_LEVELS_RANGE = WELCOME_SHEET.getRange('B2:B');
+  var GRADE_LEVELS_VALUES = GRADE_LEVELS_RANGE.getValues();
+  var TEACHER_NAMES_RANGE = WELCOME_SHEET.getRange('C2:C');
+  var TEACHER_NAMES_VALUES = TEACHER_NAMES_RANGE.getValues();
   
   // Set index sheet variables.
-  var usernameIndexSheetName = 'Username Index Sheet';
-  var usernameIndexSheet = welcomeSpreadsheet.getSheetByName(usernameIndexSheetName);
+  var USERNAME_INDEX_SHEET_NAME = 'Username Index Sheet';
+  var USERNAME_INDEX_SHEET = WELCOME_SPREADSHEET.getSheetByName(USERNAME_INDEX_SHEET_NAME);
   
   // Create usernameList of grade-level-matched usernames.
   var usernameList = [];
-  var usernameIndexes = returnUsernameIndexes_(usernameIndexSheet);
+  var usernameIndexes = returnUsernameIndexes_(USERNAME_INDEX_SHEET);
   
   var kinderI = usernameIndexes[0];
   var firstI = usernameIndexes[1];
@@ -77,52 +77,52 @@ function usernameGenerator() {
   var seventhI = usernameIndexes[7];
   var eighthI = usernameIndexes[8];
   
-  // Iterates through each row of gradeLevelsValues.
-  for (var row = 0; row < gradeLevelsValues.length; row++) {
+  // Iterates through each row of GRADE_LEVELS_VALUES.
+  for (var row = 0; row < GRADE_LEVELS_VALUES.length; row++) {
     
     // Adds the next grade-matched username to usernameList.
-    if (gradeLevelsValues[row] == gradeLabels[0]) {
-      var kinderUsernames = getUsernamesByRange_('A1:A', usernameSheet);
+    if (GRADE_LEVELS_VALUES[row] == GRADE_LABELS[0]) {
+      var kinderUsernames = getUsernamesByRange_('A1:A', USERNAME_SHEET);
       usernameList.push(kinderUsernames[kinderI][0]);
       kinderI++;
     }
-    else if (gradeLevelsValues[row] == gradeLabels[1]) {
-      var firstUsernames = getUsernamesByRange_('B1:B', usernameSheet);
+    else if (GRADE_LEVELS_VALUES[row] == GRADE_LABELS[1]) {
+      var firstUsernames = getUsernamesByRange_('B1:B', USERNAME_SHEET);
       usernameList.push(firstUsernames[firstI][0]);
       firstI++;
     }
-    else if (gradeLevelsValues[row] == gradeLabels[2]) {
-      var secondUsernames = getUsernamesByRange_('C1:C', usernameSheet);
+    else if (GRADE_LEVELS_VALUES[row] == GRADE_LABELS[2]) {
+      var secondUsernames = getUsernamesByRange_('C1:C', USERNAME_SHEET);
       usernameList.push(secondUsernames[secondI][0]);
       secondI++;
     }
-    else if (gradeLevelsValues[row] == gradeLabels[3]) {
-      var thirdUsernames = getUsernamesByRange_('D1:D', usernameSheet);
+    else if (GRADE_LEVELS_VALUES[row] == GRADE_LABELS[3]) {
+      var thirdUsernames = getUsernamesByRange_('D1:D', USERNAME_SHEET);
       usernameList.push(thirdUsernames[thirdI][0]);
       thirdI++;
     }
-    else if (gradeLevelsValues[row] == gradeLabels[4]) {
-      var fourthUsernames = getUsernamesByRange_('E1:E', usernameSheet);
+    else if (GRADE_LEVELS_VALUES[row] == GRADE_LABELS[4]) {
+      var fourthUsernames = getUsernamesByRange_('E1:E', USERNAME_SHEET);
       usernameList.push(fourthUsernames[fourthI][0]);
       fourthI++;
     }
-    else if (gradeLevelsValues[row] == gradeLabels[5]) {
-      var fifthUsernames = getUsernamesByRange_('F1:F', usernameSheet);
+    else if (GRADE_LEVELS_VALUES[row] == GRADE_LABELS[5]) {
+      var fifthUsernames = getUsernamesByRange_('F1:F', USERNAME_SHEET);
       usernameList.push(fifthUsernames[fifthI][0]);
       fifthI++;
     }
-    else if (gradeLevelsValues[row] == gradeLabels[6]) {
-      var sixthUsernames = getUsernamesByRange_('G1:G', usernameSheet);
+    else if (GRADE_LEVELS_VALUES[row] == GRADE_LABELS[6]) {
+      var sixthUsernames = getUsernamesByRange_('G1:G', USERNAME_SHEET);
       usernameList.push(sixthUsernames[sixthI][0]);
       sixthI++;
     }
-    else if (gradeLevelsValues[row] == gradeLabels[7]) {
-      var seventhUsernames = getUsernamesByRange_('H1:H', usernameSheet);
+    else if (GRADE_LEVELS_VALUES[row] == GRADE_LABELS[7]) {
+      var seventhUsernames = getUsernamesByRange_('H1:H', USERNAME_SHEET);
       usernameList.push(seventhUsernames[seventhI][0]);
       seventhI++;
     }
-    else if (gradeLevelsValues[row] == gradeLabels[8]) {
-      var eighthUsernames = getUsernamesByRange_('I1:I', usernameSheet);
+    else if (GRADE_LEVELS_VALUES[row] == GRADE_LABELS[8]) {
+      var eighthUsernames = getUsernamesByRange_('I1:I', USERNAME_SHEET);
       usernameList.push(eighthUsernames[eighthI][0]);
       eighthI++;
     }
@@ -131,17 +131,17 @@ function usernameGenerator() {
          } 
   }
   // Writes updated grade-level indexes to hidden spreadsheet.
-  storeUsernameIndexes_(welcomeSpreadsheet, [kinderI, firstI, secondI, thirdI, fourthI, fifthI, sixthI, seventhI, eighthI]);
+  storeUsernameIndexes_(WELCOME_SPREADSHEET, [kinderI, firstI, secondI, thirdI, fourthI, fifthI, sixthI, seventhI, eighthI]);
   
   
   // Create value array to write into Welcome sheet.
-  var namesAndUsernamesSheet = welcomeSpreadsheet.getSheetByName(namesAndUsernamesSheetName);
-  var returnRange = namesAndUsernamesSheet.getRange('A1:B');
+  var NAMES_AND_USERNAMES_SHEET = WELCOME_SPREADSHEET.getSheetByName(NAMES_AND_USERNAMES_SHEET_NAME);
+  var returnRange = NAMES_AND_USERNAMES_SHEET.getRange('A1:B');
   var returnValues = returnRange.getValues();
   
   // Sets Teacher Names in the first column.
-  for (row = 1; row < teacherNamesValues.length; row++) {
-    returnValues[row][0] = teacherNamesValues[row - 1][0];
+  for (row = 1; row < TEACHER_NAMES_VALUES.length; row++) {
+    returnValues[row][0] = TEACHER_NAMES_VALUES[row - 1][0];
   }
   // Sets Usernames in second column.
   for (i = 1; i < usernameList.length; i++) {
@@ -155,11 +155,11 @@ function usernameGenerator() {
   returnRange.setValues(returnValues);
   
   // Format Welcome Sheet: Resize columns, freeze first row, apply Row Bandings to returnValues and add a border, bold first row and add a border.  
-  namesAndUsernamesSheet.autoResizeColumns(1, 2);
-  namesAndUsernamesSheet.setFrozenRows(1);
-  var updatedValues = namesAndUsernamesSheet.getDataRange();
+  NAMES_AND_USERNAMES_SHEET.autoResizeColumns(1, 2);
+  NAMES_AND_USERNAMES_SHEET.setFrozenRows(1);
+  var updatedValues = NAMES_AND_USERNAMES_SHEET.getDataRange();
   updatedValues.setBorder(false, true, true, true, true, true, null, SpreadsheetApp.BorderStyle.SOLID).applyRowBanding(SpreadsheetApp.BandingTheme.LIGHT_GREEN, true, false)
-  var firstRow = namesAndUsernamesSheet.getRange('A1:B1');
+  var firstRow = NAMES_AND_USERNAMES_SHEET.getRange('A1:B1');
   firstRow.setFontWeight('bold').setBorder(true, true, true, true, null, null, null, SpreadsheetApp.BorderStyle.SOLID_MEDIUM); 
 }
 
@@ -168,8 +168,8 @@ function usernameGenerator() {
  *
  * @customfunction
  */
-function getUsernamesByRange_(myRangeStr, usernameSheet) {
-  var usernameRange = usernameSheet.getRange(myRangeStr);
+function getUsernamesByRange_(myRangeStr, USERNAME_SHEET) {
+  var usernameRange = USERNAME_SHEET.getRange(myRangeStr);
   var usernameValues = usernameRange.getValues();
   
   return usernameValues;
@@ -182,14 +182,14 @@ function getUsernamesByRange_(myRangeStr, usernameSheet) {
  *
  * @customfunction
  */
-function returnUsernameIndexes_(usernameIndexSheet) {  
+function returnUsernameIndexes_(USERNAME_INDEX_SHEET) {  
   // If the hidden username index sheet does not exist, sets indexValues to an array of default values (2).
-  if (usernameIndexSheet == null) {
+  if (USERNAME_INDEX_SHEET == null) {
       var indexValues = [2, 2, 2, 2, 2, 2, 2, 2, 2];
       }
   // If the sheet exists, it gets the single row of values and creates an array from them.
   else {
-    var usernameRange = usernameIndexSheet.getDataRange();
+    var usernameRange = USERNAME_INDEX_SHEET.getDataRange();
     var usernameValues = usernameRange.getValues();
     var indexValues = [];
     for (i = 0; i < usernameValues.length; i++) {
@@ -207,21 +207,21 @@ function returnUsernameIndexes_(usernameIndexSheet) {
  *
  * @customfunction
  */
-function storeUsernameIndexes_(welcomeSpreadsheet, indexArray) {  
-  var usernameIndexSheetName = 'Username Index Sheet';
-  var usernameIndexSheet = welcomeSpreadsheet.getSheetByName(usernameIndexSheetName);
+function storeUsernameIndexes_(WELCOME_SPREADSHEET, indexArray) {  
+  var USERNAME_INDEX_SHEET_NAME = 'Username Index Sheet';
+  var USERNAME_INDEX_SHEET = WELCOME_SPREADSHEET.getSheetByName(USERNAME_INDEX_SHEET_NAME);
   
-  if (usernameIndexSheet == null) {
+  if (USERNAME_INDEX_SHEET == null) {
     // If sheet does not exist, create the sheet and hide it.
-    var spreadsheetNums = welcomeSpreadsheet.getNumSheets();
-    usernameIndexSheet = welcomeSpreadsheet.insertSheet('Username Indexes', spreadsheetNums + 1);
-    usernameIndexSheet.hideSheet();
+    var spreadsheetNums = WELCOME_SPREADSHEET.getNumSheets();
+    USERNAME_INDEX_SHEET = WELCOME_SPREADSHEET.insertSheet('Username Indexes', spreadsheetNums + 1);
+    USERNAME_INDEX_SHEET.hideSheet();
   }
   // Creates a single-row value array to write to the sheet.
   var indexValues = [indexArray];
   
   // Writes values to hidden sheet.
-  var usernameRange = usernameIndexSheet.getRange(1, 1, 1, 9);
+  var usernameRange = USERNAME_INDEX_SHEET.getRange(1, 1, 1, 9);
   usernameRange.setValues(indexValues);
 }
 
@@ -234,11 +234,11 @@ function storeUsernameIndexes_(welcomeSpreadsheet, indexArray) {
  * @customfunction
  */
 function resetUsernames() {
-  var welcomeSpreadsheetId = '1GD5UBfEcWwxopL3pS7t4MIjFWFzk_NsPXT24T1JxVa8';
-  var usernameIndexSheetName = 'Username Indexes'
+  var WELCOME_SPREADSHEET_ID = '1GD5UBfEcWwxopL3pS7t4MIjFWFzk_NsPXT24T1JxVa8';
+  var USERNAME_INDEX_SHEET_NAME = 'Username Indexes'
  
-  var ss = SpreadsheetApp.openById(welcomeSpreadsheetId);
-  var usernameIndexSheet = ss.getSheetByName(usernameIndexSheetName);
+  var ss = SpreadsheetApp.openById(WELCOME_SPREADSHEET_ID);
+  var usernameIndexSheet = ss.getSheetByName(USERNAME_INDEX_SHEET_NAME);
   if (usernameIndexSheet) {
     ss.deleteSheet(usernameIndexSheet);
   }
@@ -253,15 +253,14 @@ function resetUsernames() {
  * @customfunction
  */
 function deleteList() {
-  var welcomeSpreadsheetId = '1GD5UBfEcWwxopL3pS7t4MIjFWFzk_NsPXT24T1JxVa8';
-  var namesAndUsernamesSheetName = 'NamesAndUserNames';
+  var WELCOME_SPREADSHEET_ID = '1GD5UBfEcWwxopL3pS7t4MIjFWFzk_NsPXT24T1JxVa8';
+  var NAMES_AND_USERNAMES_SHEET_NAME = 'NamesAndUserNames';
   
-  var welcomeSpreadsheet = SpreadsheetApp.openById(welcomeSpreadsheetId);
+  var welcomeSpreadsheet = SpreadsheetApp.openById(WELCOME_SPREADSHEET_ID);
   // Clears all values and formatting from the sheet.
-  var namesAndUsernamesSheet = welcomeSpreadsheet.getSheetByName(namesAndUsernamesSheetName);
+  var namesAndUsernamesSheet = welcomeSpreadsheet.getSheetByName(NAMES_AND_USERNAMES_SHEET_NAME);
   namesAndUsernamesSheet.clear();
   namesAndUsernamesSheet.getBandings().forEach(function (banding) {
     banding.remove();
   });
 }
-
